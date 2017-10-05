@@ -1,0 +1,94 @@
+---
+# send metrics to 5 hosts, but use hashing for only last two
+collectd_write_graphite_hashed: yes
+collectd_write_graphite_hashed_options:
+  "gr01":
+    Host: "graphite-relay01.example.com"
+    Port: 2013
+    Prefix: stats.
+    # Postfix: .collectd
+    Protocol: tcp
+    AlwaysAppendDS: 'false'
+    EscapeCharacter: _
+    LogSendErrors: 'true'
+    StoreRates: 'true'
+  "gr02":
+    Host: "graphite-relay02.example.com"
+    Port: 2013
+    Prefix: stats.
+    # Postfix: .collectd
+    Protocol: tcp
+    AlwaysAppendDS: 'false'
+    EscapeCharacter: _
+    LogSendErrors: 'true'
+    StoreRates: 'true'
+  "gr03":
+    Host: "graphite-relay03.example.com"
+    Port: 2013
+    Prefix: stats.
+    # Postfix: .collectd
+    Protocol: tcp
+    AlwaysAppendDS: 'false'
+    EscapeCharacter: _
+    LogSendErrors: 'true'
+    StoreRates: 'true'
+  "gr04":
+    Host: "graphite-relay04.example.com"
+    Port: 2013
+    Prefix: stats.
+    # Postfix: .collectd
+    Protocol: tcp
+    AlwaysAppendDS: 'false'
+    EscapeCharacter: _
+    LogSendErrors: 'true'
+    StoreRates: 'true'
+  "gr05":
+    Host: "graphite-relay05.example.com"
+    Port: 2013
+    Prefix: stats.
+    # Postfix: .collectd
+    Protocol: tcp
+    AlwaysAppendDS: 'false'
+    EscapeCharacter: _
+    LogSendErrors: 'true'
+    StoreRates: 'true'
+
+# spread send only part of the metrics
+collectd_match_hashed: yes
+# should be dict
+# rule matcher https://collectd.org/wiki/index.php/Table_of_Matches
+collectd_match_hashed_options:
+  "PostCache": # chain
+    rules:
+      "Rule_1": # rule
+        descritpion: "Send metrics to first group"
+        match:
+        "hashed": # match
+            - "0 5"
+            - "1 5"
+        target: # target
+          "write":
+            - 'Plugin "write_graphite/gr01"'
+        rule_target: "stop"
+
+      "Rule_2":
+        descritpion: "Send metrics to second group"
+        match:
+        "hashed":
+            - "3 5"
+            - "4 5"
+        target:
+          "write":
+            - 'Plugin "write_graphite/gr02"'
+        rule_target: "stop"
+
+      "Rule_3":
+        descritpion: "Send metrics matching "
+        match:
+        "hashed":
+            - "5 5"
+            - "2 3"
+        target:
+          "write":
+            - 'Plugin "write_graphite/gr03"'
+        rule_target: "stop"

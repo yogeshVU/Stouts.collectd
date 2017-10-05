@@ -110,3 +110,80 @@ collectd_numa_node_cpus: [ "0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 
 collectd_numa_cpu_aggr_options:
    CalculateAverage: true
    CalculateSum: false
+
+# Setup write_graphite (https://collectd.org/wiki/index.php/Plugin:Write_Graphite)
+# with hashed plugin (https://collectd.org/wiki/index.php/Match:Hashed/Config)
+# this allows to send metrics to mutliple graphite hosts with replication
+collectd_write_graphite_hashed: false
+# below should be a hash
+collectd_write_graphite_hashed_options:
+  "gr01":
+    Host: '"graphite-relay01.example.com"'
+    Port: 2003
+    Prefix: '"stats."'
+    # Postfix: .collectd
+    Protocol: tcp
+    AlwaysAppendDS: 'false'
+    EscapeCharacter: _
+    LogSendErrors: 'true'
+    StoreRates: 'true'
+  "gr02":
+    Host: '"graphite-relay02.example.com"'
+    Port: 2003
+    Prefix: '"stats."'
+    # Postfix: .collectd
+    Protocol: tcp
+    AlwaysAppendDS: 'false'
+    EscapeCharacter: _
+    LogSendErrors: 'true'
+    StoreRates: 'true'
+  "gr03":
+    Host: '"graphite-relay03.example.com"'
+    Port: 2003
+    Prefix: '"stats."'
+    # Postfix: .collectd
+    Protocol: tcp
+    AlwaysAppendDS: 'false'
+    EscapeCharacter: _
+    LogSendErrors: 'true'
+    StoreRates: 'true'
+
+collectd_match_hashed: false
+# should be dict
+# rule matcher https://collectd.org/wiki/index.php/Table_of_Matches
+collectd_match_hashed_options:
+  "PostCache": # chain
+    chain_target: "return"
+    rules:
+      "Rule_1": # rule
+        description: "Send metrics to first and third of three servers"
+        match:
+          "hashed": # match
+              - "Match 0 3"
+              - "Match 1 3"
+        target: # target
+          "write":
+            - 'Plugin "write_graphite/gr01"'
+        rule_target: "stop"
+
+      "Rule_2":
+        description: "Send metrics to second and third of three servers"
+        match:
+          "hashed":
+              - "Match 1 3"
+              - "Match 2 3"
+        target:
+          "write":
+            - 'Plugin "write_graphite/gr02"'
+        rule_target: "stop"
+
+      "Rule_3":
+        description: "Send metrics to first and third of three servers"
+        match:
+          "hashed":
+              - "Match 0 3"
+              - "Match 2 3"
+        target:
+          "write":
+            - 'Plugin "write_graphite/gr03"'
+        rule_target: "stop"

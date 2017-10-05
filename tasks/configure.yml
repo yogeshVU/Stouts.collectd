@@ -29,3 +29,13 @@
   file: path={{collectd_config_dir}}/numa_cpu_aggregation.conf state=absent
   notify: collectd restart
   when: not collectd_numa_cpu_aggr
+
+- name: collectd-configure | Configure Collectd write graphite hashed
+  template: src=collectd_hashed.conf.j2 dest='{{collectd_config_dir}}/write_graphite_hashed.conf' validate='{{collectd_sbin_path}}/collectd -t -C %s'
+  notify: collectd restart
+  when: collectd_match_hashed
+
+- name: collectd-configure | Remove Collectd write graphite hashed
+  file: path={{collectd_config_dir}}/write_graphite_hashed.conf state=absent
+  notify: collectd restart
+  when: not collectd_match_hashed
