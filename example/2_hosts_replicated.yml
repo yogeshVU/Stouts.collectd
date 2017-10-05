@@ -1,11 +1,11 @@
 ---
 # send metrics to 2 graphite relay hosts
-collectd_write_graphite_hashed: yes
+collectd_write_graphite_hashed: true
 collectd_write_graphite_hashed_options:
   "gr01":
-    Host: "graphite-relay01.example.com"
+    Host: '"graphite-relay01.example.com"'
     Port: 2013
-    Prefix: stats.
+    Prefix: '"stats."'
     # Postfix: .collectd
     Protocol: tcp
     AlwaysAppendDS: 'false'
@@ -13,9 +13,9 @@ collectd_write_graphite_hashed_options:
     LogSendErrors: 'true'
     StoreRates: 'true'
   "gr02":
-    Host: "graphite-relay02.example.com"
+    Host: '"graphite-relay02.example.com"'
     Port: 2013
-    Prefix: stats.
+    Prefix: '"stats."'
     # Postfix: .collectd
     Protocol: tcp
     AlwaysAppendDS: 'false'
@@ -24,27 +24,27 @@ collectd_write_graphite_hashed_options:
     StoreRates: 'true'
 
 # send to each host all metrics
-collectd_match_hashed: no
-# should be dict
-# rule matcher https://collectd.org/wiki/index.php/Table_of_Matches
-# collectd_match_hashed_options:
+collectd_match_hashed: false
+collectd_match_hashed_options:
 #   "PostCache": # chain
-#     "Rule_1": # rule
-#       descritpion: "Send metrics only to first of two servers"
-#       match:
-#       "hashed": # match
-#           - "0 2"
-#       target: # target
-#         "write":
-#           - 'Plugin "write_graphite/gr01"'
-#       rule_target: "stop"
+#     chain_target: "return"
+#     rules:
+#       "Rule_1": # rule
+#         descritpion: "Send metrics only to first of two servers"
+#         match:
+#         "hashed": # match
+#             - "0 2"
+#         target: # target
+#           "write":
+#             - 'Plugin "write_graphite/gr01"'
+#         rule_target: "stop"
 
-#     "Rule_2":
-#       descritpion: "Send metrics only to second of two servers"
-#       match:
-#       "hashed":
-#           - "1 2"
-#       target:
-#         "write":
-#           - 'Plugin "write_graphite/gr02"'
-#       rule_target: "stop"
+#       "Rule_2":
+#         descritpion: "Send metrics only to second of two servers"
+#         match:
+#         "hashed":
+#             - "1 2"
+#         target:
+#           "write":
+#             - 'Plugin "write_graphite/gr02"'
+#         rule_target: "stop"

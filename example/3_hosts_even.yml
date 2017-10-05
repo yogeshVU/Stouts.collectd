@@ -1,11 +1,11 @@
 ---
 # send metrics to 3 graphite relay hosts
-collectd_write_graphite_hashed: yes
+collectd_write_graphite_hashed: true
 collectd_write_graphite_hashed_options:
   "gr01":
-    Host: "graphite-relay01.example.com"
+    Host: '"graphite-relay01.example.com"'
     Port: 2013
-    Prefix: stats.
+    Prefix: '"stats."'
     # Postfix: .collectd
     Protocol: tcp
     AlwaysAppendDS: 'false'
@@ -13,9 +13,9 @@ collectd_write_graphite_hashed_options:
     LogSendErrors: 'true'
     StoreRates: 'true'
   "gr02":
-    Host: "graphite-relay02.example.com"
+    Host: '"graphite-relay02.example.com"'
     Port: 2013
-    Prefix: stats.
+    Prefix: '"stats."'
     # Postfix: .collectd
     Protocol: tcp
     AlwaysAppendDS: 'false'
@@ -23,9 +23,9 @@ collectd_write_graphite_hashed_options:
     LogSendErrors: 'true'
     StoreRates: 'true'
   "gr03":
-    Host: "graphite-relay03.example.com"
+    Host: '"graphite-relay03.example.com"'
     Port: 2013
-    Prefix: stats.
+    Prefix: '"stats."'
     # Postfix: .collectd
     Protocol: tcp
     AlwaysAppendDS: 'false'
@@ -35,40 +35,42 @@ collectd_write_graphite_hashed_options:
 
 # spread send only part of the metrics
 # # shis way each server gets 2/3 of all metrics
-collectd_match_hashed: yes
+collectd_match_hashed: true
 # should be dict
 # rule matcher https://collectd.org/wiki/index.php/Table_of_Matches
 collectd_match_hashed_options:
   "PostCache": # chain
-    "Rule_1": # rule
-      descritpion: "Send metrics to first and third of three servers"
-      match:
-      "hashed": # match
-          - "0 3"
-          - "1 3"
-      target: # target
-        "write":
-          - 'Plugin "write_graphite/gr01"'
-      rule_target: "stop"
+    chain_target: "return"
+    rules:
+      "Rule_1": # rule
+        descritpion: "Send metrics to first and third of three servers"
+        match:
+          "hashed": # match
+              - "Match 0 3"
+              - "Match 1 3"
+        target: # target
+          "write":
+            - 'Plugin "write_graphite/gr01"'
+        rule_target: "stop"
 
-    "Rule_2":
-      descritpion: "Send metrics to second and third of three servers"
-      match:
-      "hashed":
-          - "1 3"
-          - "2 3"
-      target:
-        "write":
-          - 'Plugin "write_graphite/gr02"'
-      rule_target: "stop"
+      "Rule_2":
+        descritpion: "Send metrics to second and third of three servers"
+        match:
+          "hashed":
+              - "Match 1 3"
+              - "Match 2 3"
+        target:
+          "write":
+            - 'Plugin "write_graphite/gr02"'
+        rule_target: "stop"
 
-    "Rule_3":
-      descritpion: "Send metrics to first and third of three servers"
-      match:
-      "hashed":
-          - "0 3"
-          - "2 3"
-      target:
-        "write":
-          - 'Plugin "write_graphite/gr03"'
-      rule_target: "stop"
+      "Rule_3":
+        descritpion: "Send metrics to first and third of three servers"
+        match:
+          "hashed":
+              - "Match 0 3"
+              - "Match 2 3"
+        target:
+          "write":
+            - 'Plugin "write_graphite/gr03"'
+        rule_target: "stop"
