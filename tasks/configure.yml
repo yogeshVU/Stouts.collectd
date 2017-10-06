@@ -1,9 +1,4 @@
 ---
-
-- name: collectd-configure | Configure Collectd
-  template: src=collectd.conf.j2 dest={{collectd_config_file}} validate='{{collectd_sbin_path}}/collectd -t -C %s'
-  notify: collectd restart
-
 - name: collectd-configure | Ensure conf.d directory
   file: path={{collectd_config_dir}} state=directory
 
@@ -11,10 +6,36 @@
   template: src=types.db.j2 dest={{collectd_additional_types_db_path}}
   notify: collectd restart
 
-- name: collectd-configure | Configure Addiotnal Plugin AMQP
+- name: collectd-configure | Configure Collectd
+  template: src=collectd.conf.j2 dest='{{collectd_config_file}}' validate='{{collectd_sbin_path}}/collectd -t -C %s'
+  notify: collectd restart
+
+- name: collectd-configure | Configure Additional Plugin AMQP
   template: src=amqp.conf.j2 dest={{collectd_config_dir}}/amqp.conf validate='{{collectd_sbin_path}}/collectd -t -C %s'
   notify: collectd restart
+  when: collectd_write_amqp
+
+- name: collectd-configure | Remove Additional Plugin AMQP
+  file: path={{collectd_config_dir}}/amqp.conf state=absent
+  notify: collectd restart
+  when: not collectd_write_amqp
 
 - name: collectd-configure | Configure Additional Plugin NUMA CPU Aggregation
   template: src=numa_cpu_aggregation.conf.j2 dest={{collectd_config_dir}}/numa_cpu_aggregation.conf validate='{{collectd_sbin_path}}/collectd -t -C %s'
   notify: collectd restart
+  when: collectd_numa_cpu_aggr
+
+- name: collectd-configure | Remove Additional Plugin NUMA CPU Aggregation
+  file: path={{collectd_config_dir}}/numa_cpu_aggregation.conf state=absent
+  notify: collectd restart
+  when: not collectd_numa_cpu_aggr
+
+- name: collectd-configure | Configure Collectd write graphite hashed
+  template: src=collectd_hashed.conf.j2 dest='{{collectd_config_dir}}/write_graphite_hashed.conf' validate='{{collectd_sbin_path}}/collectd -t -C %s'
+  notify: collectd restart
+  when: collectd_match_hashed
+
+- name: collectd-configure | Remove Collectd write graphite hashed
+  file: path={{collectd_config_dir}}/write_graphite_hashed.conf state=absent
+  notify: collectd restart
+  when: not collectd_match_hashed
